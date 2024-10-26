@@ -1,5 +1,6 @@
+// App.js
 import React from 'react';
-import SurfSpot from './SurfSpot';
+import SurfForecastPage from './surfForecastPage';
 
 function App() {
   // Maroubra Beach coordinates
@@ -9,7 +10,7 @@ function App() {
   return (
     <div className="App">
       <h1>Surf Forecast App</h1>
-      <SurfSpot lat={lat} lon={lon} />
+      <SurfForecastPage lat={lat} lon={lon} />
     </div>
   );
 }

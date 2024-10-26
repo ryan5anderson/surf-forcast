@@ -25,20 +25,26 @@ app.get('/api/surf-weather', async (req: Request, res: Response) => {
         // 1. Fetch weather data (temperature, visibility, wind speed)
         const weatherUrl = "https://api.open-meteo.com/v1/forecast";
         const weatherParams = {
-            "latitude": parseFloat(lat as string),
-            "longitude": parseFloat(lon as string),
-            "current": ["temperature_2m", "pressure_msl", "wind_speed_10m", "wind_direction_10m"],
-            "timezone": "auto",
-            "temperature_unit": "fahrenheit",
-	        "wind_speed_unit": "kn"
+            latitude: parseFloat(lat as string),
+            longitude: parseFloat(lon as string),
+            current: ["temperature_2m", "pressure_msl", "wind_speed_10m", "wind_direction_10m"],
+            timezone: "auto",
+            temperature_unit: "fahrenheit",
+            wind_speed_unit: "kn"
         };
-        
+
+        // Fetching from the weather API
         const weatherResponse = await fetchWeatherApi(weatherUrl, weatherParams);
+        console.log('Weather API Response:', JSON.stringify(weatherResponse, null, 2)); // Full response
+
         const weatherData = weatherResponse[0];
+        console.log('Parsed weatherData:', weatherData); // Parsed weather data
+
         const weatherCurrent = weatherData.current()!;
-        
+        console.log('Parsed weatherCurrent:', weatherCurrent); // Specific weather current data
+
         const utcOffsetSeconds = weatherData.utcOffsetSeconds();
-        
+
         const weatherCurrentData = {
             time: new Date((Number(weatherCurrent.time()) + utcOffsetSeconds) * 1000),
             temperature2m: weatherCurrent.variables(0)!.value(),
@@ -46,6 +52,13 @@ app.get('/api/surf-weather', async (req: Request, res: Response) => {
             windSpeed10m: weatherCurrent.variables(2)!.value(),
             windDirection10m: weatherCurrent.variables(3)!.value(),
         };
+        console.log('Weather Current Data:', weatherCurrentData); // Final extracted data
+
+        // Check for missing values
+        if (!weatherCurrentData.temperature2m || !weatherCurrentData.pressureMsl || !weatherCurrentData.windSpeed10m || !weatherCurrentData.windDirection10m) {
+            console.warn('Some weather data values are missing:', weatherCurrentData);
+        }
+
         
 
         // 2. Fetch marine data (wave height, wave direction, wave period)
